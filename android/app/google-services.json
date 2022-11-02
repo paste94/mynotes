@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "991027730405",
+    "project_id": "mynotes-prova-flutter",
+    "storage_bucket": "mynotes-prova-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991027730405:android:df22c251b923075421410c",
+        "android_client_info": {
+          "package_name": "com.example.mynotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991027730405-35640re4q1umdtp0dpstn9al9hcj8ecv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD70vIbK07vQrNmuZQ992Orx8ArFc0xeog"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991027730405-35640re4q1umdtp0dpstn9al9hcj8ecv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
