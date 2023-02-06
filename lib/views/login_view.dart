@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -49,30 +51,35 @@ class _LoginViewState extends State<LoginView> {
                 const InputDecoration(hintText: 'Enter your password here'),
           ),
           TextButton(
-            onPressed: () async {
+            child: const Text('Login'),
+            onPressed: () {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: email,
-                  password: password,
-                );
-                print(userCredential);
+                FirebaseAuth.instance
+                    .signInWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    )
+                    .then(
+                      (_) => Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/notes/',
+                        (_) => false,
+                      ),
+                    );
               } on FirebaseAuthException catch (e) {
-                print(e.message);
+                log(e.message.toString());
               }
             },
-            child: const Text('Login'),
           ),
           TextButton(
+            child: const Text('Not registered yet? Register now here!'),
             onPressed: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
                 '/register/',
                 (route) => false,
               );
             },
-            child: const Text('Not registered yet? Register now here!'),
           )
         ],
       ),
