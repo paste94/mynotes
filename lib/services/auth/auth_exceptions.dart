@@ -1,3 +1,5 @@
+/// Elenco di possibili eccezioni che possono avvenire nell'autenticazione
+
 // Login Exceptions
 class UserNotFoundAuthException implements Exception {}
 

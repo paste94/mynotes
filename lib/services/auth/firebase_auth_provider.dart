@@ -5,6 +5,8 @@ import 'package:mynotes/services/auth/auth_exceptions.dart';
 import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 
+/// Implementazione del provider. Questa comunica direttamente con Firebase e
+/// effettua tutti i controlli nel caso ci siano errori o null sparsi in giro.
 class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<AuthUser> createUser({
