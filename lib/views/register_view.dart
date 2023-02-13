@@ -1,9 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../firebase_options.dart';
+import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -53,26 +51,24 @@ class _RegisterViewState extends State<RegisterView> {
                 const InputDecoration(hintText: 'Enter your password here'),
           ),
           TextButton(
-            onPressed: () async {
+            child: const Text('Register'),
+            onPressed: () {
               final email = _email.text;
               final password = _password.text;
-              try {
-                final userCredential =
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: email,
-                  password: password,
-                );
-                print(userCredential);
-              } on FirebaseAuthException catch (e) {
-                print(e.message);
-              }
+              FirebaseAuth.instance
+                  .createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  )
+                  .then((_) => sendEmailVerification(context))
+                  // ignore: invalid_return_type_for_catch_error
+                  .catchError((e) => showErrorDialog(context, e.message));
             },
-            child: const Text('Register'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                '/login/',
+                loginRoute,
                 (route) => false,
               );
             },
@@ -83,3 +79,10 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 }
+
+Future<Object?>? sendEmailVerification(context) =>
+    FirebaseAuth.instance.currentUser
+        ?.sendEmailVerification()
+        .then((_) => Navigator.of(context).pushNamed(verifyEmailRoute))
+        // ignore: invalid_return_type_for_catch_error
+        .catchError((e) => showErrorDialog(context, e.message));
