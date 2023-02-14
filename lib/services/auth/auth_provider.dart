@@ -4,13 +4,14 @@ import 'package:mynotes/services/auth/auth_user.dart';
 /// mantenere (nel caso in cui volessi usare google, facebook o altri dovrebbero
 /// rispettare questa interfaccia)
 abstract class AuthProvider {
+  Future<void> initialize();
   AuthUser? get currentUser;
   Future<AuthUser> logIn({
-    required String username,
+    required String email,
     required String password,
   });
   Future<AuthUser> createUser({
-    required String username,
+    required String email,
     required String password,
   });
   Future<void> logOut();

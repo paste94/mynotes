@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/functions/routes.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -55,39 +55,23 @@ class _LoginViewState extends State<LoginView> {
             onPressed: () {
               final email = _email.text;
               final password = _password.text;
-              FirebaseAuth.instance
-                  .signInWithEmailAndPassword(
-                email: email,
-                password: password,
-              )
-                  .then((userCredential) {
-                final user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
-                  // User's email verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    notesRoute,
-                    (_) => false,
-                  );
-                } else {
-                  // User's email NOT verified
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    verifyEmailRoute,
-                    (_) => false,
-                  );
-                }
-              })
-                  // ignore: invalid_return_type_for_catch_error
+              AuthService.firebase()
+                  .logIn(email: email, password: password)
+                  .then((_) =>
+                      AuthService.firebase().currentUser?.isEmailVerified ??
+                              false
+                          ?
+                          // User's email verified
+                          goToNotesView(context)
+                          :
+                          // User's email NOT verified
+                          goToVerifyEmailView(context))
                   .catchError((e) => showErrorDialog(context, e.message));
             },
           ),
           TextButton(
             child: const Text('Not registered yet? Register now here!'),
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
-            },
+            onPressed: () => goToRegisterView(context),
           )
         ],
       ),

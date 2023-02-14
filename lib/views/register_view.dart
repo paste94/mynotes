@@ -1,7 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
+
+import '../functions/routes.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -55,23 +57,19 @@ class _RegisterViewState extends State<RegisterView> {
             onPressed: () {
               final email = _email.text;
               final password = _password.text;
-              FirebaseAuth.instance
-                  .createUserWithEmailAndPassword(
+              AuthService.firebase()
+                  .createUser(
                     email: email,
                     password: password,
                   )
                   .then((_) => sendEmailVerification(context))
-                  // ignore: invalid_return_type_for_catch_error
-                  .catchError((e) => showErrorDialog(context, e.message));
+                  .catchError((e) {
+                showErrorDialog(context, e.message);
+              });
             },
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                loginRoute,
-                (route) => false,
-              );
-            },
+            onPressed: () => goToLoginView(context),
             child: const Text('Already registered? Log in here!'),
           )
         ],
@@ -80,9 +78,7 @@ class _RegisterViewState extends State<RegisterView> {
   }
 }
 
-Future<Object?>? sendEmailVerification(context) =>
-    FirebaseAuth.instance.currentUser
-        ?.sendEmailVerification()
-        .then((_) => Navigator.of(context).pushNamed(verifyEmailRoute))
-        // ignore: invalid_return_type_for_catch_error
-        .catchError((e) => showErrorDialog(context, e.message));
+Future<Object?>? sendEmailVerification(context) => AuthService.firebase()
+    .sendEmailVerification()
+    .then((_) => goToVerifyEmailView(context, removeUntil: true))
+    .catchError((e) => showErrorDialog(context, e.message));
