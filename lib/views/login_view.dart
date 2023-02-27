@@ -52,21 +52,24 @@ class _LoginViewState extends State<LoginView> {
           ),
           TextButton(
             child: const Text('Login'),
-            onPressed: () {
+            onPressed: () async {
               final email = _email.text;
               final password = _password.text;
-              AuthService.firebase()
-                  .logIn(email: email, password: password)
-                  .then((_) =>
-                      AuthService.firebase().currentUser?.isEmailVerified ??
-                              false
-                          ?
-                          // User's email verified
-                          goToNotesView(context)
-                          :
-                          // User's email NOT verified
-                          goToVerifyEmailView(context))
-                  .catchError((e) => showErrorDialog(context, e.message));
+              try {
+                await AuthService.firebase().logIn(
+                  email: email,
+                  password: password,
+                );
+                if (!mounted) return;
+                if (AuthService.firebase().currentUser?.isEmailVerified ??
+                    false) {
+                  goToNotesView(context);
+                } else {
+                  goToVerifyEmailView(context);
+                }
+              } catch (e) {
+                showErrorDialog(context, e.toString());
+              }
             },
           ),
           TextButton(

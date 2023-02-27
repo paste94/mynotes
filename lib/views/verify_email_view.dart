@@ -27,10 +27,13 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
             child: const Text('Send verification mail')),
         TextButton(
             onPressed: () {
-              AuthService.firebase()
-                  .logOut()
-                  .then((_) => goToRegisterView(context))
-                  .catchError((e) => showErrorDialog(context, e.message));
+              try {
+                AuthService.firebase().logOut();
+                if (!mounted) return;
+                goToRegisterView(context);
+              } catch (e) {
+                showErrorDialog(context, e.toString());
+              }
             },
             child: const Text('Restart')),
       ]),

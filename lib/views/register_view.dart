@@ -54,18 +54,21 @@ class _RegisterViewState extends State<RegisterView> {
           ),
           TextButton(
             child: const Text('Register'),
-            onPressed: () {
+            onPressed: () async {
               final email = _email.text;
               final password = _password.text;
-              AuthService.firebase()
-                  .createUser(
-                    email: email,
-                    password: password,
-                  )
-                  .then((_) => sendEmailVerification(context))
-                  .catchError((e) {
-                showErrorDialog(context, e.message);
-              });
+              try {
+                await AuthService.firebase().createUser(
+                  email: email,
+                  password: password,
+                );
+                if (!mounted) return;
+                await AuthService.firebase().sendEmailVerification();
+                if (!mounted) return;
+                goToVerifyEmailView(context, removeUntil: true);
+              } catch (e) {
+                showErrorDialog(context, e.toString());
+              }
             },
           ),
           TextButton(
@@ -77,8 +80,3 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 }
-
-Future<Object?>? sendEmailVerification(context) => AuthService.firebase()
-    .sendEmailVerification()
-    .then((_) => goToVerifyEmailView(context, removeUntil: true))
-    .catchError((e) => showErrorDialog(context, e.message));
