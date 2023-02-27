@@ -8,7 +8,7 @@ import 'crud_exeptions.dart';
 class NotesService {
   Database? _db;
 
-  Database _getDatabaseOrThrow() {
+  Database _getDatab aseOrThrow() {
     final db = _db;
     if (db == null) {
       throw DatabaseIsNotOpenException();
