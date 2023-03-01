@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,6 +9,16 @@ import 'crud_exeptions.dart';
 
 class NotesService {
   Database? _db;
+  List<DatabaseNote> _notes = [];
+
+  final _notesStreamController =
+      StreamController<List<DatabaseNote>>.broadcast();
+
+  Future<void> _cacheNotes() async {
+    final allNotes = await getAllNotes();
+    _notes = allNotes.toList();
+    _notesStreamController.add(_notes);
+  }
 
   Database _getDatabaseOrThrow() {
     final db = _db;
@@ -29,6 +41,7 @@ class NotesService {
 
       await db.execute(createUserTable);
       await db.execute(createNotesTable);
+      await _cacheNotes();
     } on MissingPlatformDirectoryException {
       throw UnableToGetDocumentsDirectory();
     }
@@ -113,6 +126,9 @@ class NotesService {
       isSyncedWithCloud: true,
     );
 
+    _notes.add(note);
+    _notesStreamController.add(_notes);
+
     return note;
   }
 
@@ -126,11 +142,16 @@ class NotesService {
     if (deletedCount != 1) {
       throw CouldNotDeleteNote();
     }
+    _notes.removeWhere((note) => note.id == id);
+    _notesStreamController.add(_notes);
   }
 
   Future<int> deleteAllNotes() async {
     final db = _getDatabaseOrThrow();
-    return await db.delete(notesTable);
+    _notes = [];
+    _notesStreamController.add(_notes);
+    final numberOfDeletions = await db.delete(notesTable);
+    return numberOfDeletions;
   }
 
   Future<DatabaseNote> getNote({required int id}) async {
@@ -145,6 +166,9 @@ class NotesService {
       throw CouldNotFindNote();
     }
     final note = DatabaseNote.fromRow(notes.first);
+    _notes.removeWhere((note) => note.id == id);
+    _notes.add(note);
+    _notesStreamController.add(_notes);
     return note;
   }
 
@@ -175,7 +199,25 @@ class NotesService {
       throw CouldNotUpdateNote();
     }
 
-    return getNote(id: note.id);
+    final updatedNote = await getNote(id: note.id);
+
+    _notes.removeWhere((note) => note.id == updatedNote.id);
+    _notes.add(note);
+    _notesStreamController.add(_notes);
+
+    return updatedNote;
+  }
+
+  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+    try {
+      final user = await getUser(email: email);
+      return user;
+    } on CouldNotFindUser {
+      final createdUser = await createUser(email: email);
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
